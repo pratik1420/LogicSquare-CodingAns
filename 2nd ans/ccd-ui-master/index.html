@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>California Cafe Directory</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+
+  <body>
+    
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12" id="header-wrapper">
+          <div class="container">
+            <div class="row">
+              <div class="col-12" id="header">
+                <h2>California Cafe Directory</h2>
+              </div>
+              <div class="col-12" id="search-wrapper">
+                <input id="search" type="text" oninput="searching()" placeholder="Search your favorite cafes!">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="container">
+          <div class="row">
+            <div class="col-12" id="table-wrapper">
+              <table>
+                <thead>
+                  <tr class="table100-head">
+                    <th class="column1">S No</th>
+                    <th class="column2">Cafe Name</th>
+                    <th class="column3">Address</th>
+                    <th class="column4">Postal Code</th>
+                    <th class="column5">Lat</th>
+                    <th class="column6">Long</th>
+                  </tr>
+                </thead>
+                <tbody id="table-body">
+                  
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    
+    
+    <script>
+   const getCafes = () => {
+    const api =
+      "https://raw.githubusercontent.com/debojyoti/places-fake-rest-api/master/cafes.json";
+    return fetch(api).then((response) => {
+      return response.json();
+    });
+  };
+  var cafes = [];
+
+  getCafes().then((result) => {
+    cafes = Array.from(result.cafes);
+  });
+  
+  const getPlaces = () => {
+    const api =
+      "https://raw.githubusercontent.com/debojyoti/places-fake-rest-api/master/places.json";
+    return fetch(api).then((response) => {
+      return response.json();
+    });
+  };
+  var places = [];
+  getPlaces().then((result) => {
+    places = Array.from(result.places);
+    searching("");
+  });
+  
+  function searching() {
+    let inp = document.getElementById("search").value;
+    inp = inp.toUpperCase();
+    Result=calc(inp);
+    var table=document.getElementById('table-body');
+    let totalRows =``;
+    Result.forEach((objects)=>{
+      var columns='';
+      for(var k in objects){
+        columns+=`<td class="${k}">${objects[k]}</td>\n`;
+      }
+      var rows=`<tr>${columns}</tr>`;
+      totalRows += rows;
+    })
+    table.innerHTML = totalRows;
+  }
+  
+  function calc(inp) {
+    const selectedCafe = cafes.filter(cafe => cafe.name.toUpperCase().search(inp) !== -1)
+    selectedCafe.forEach(cafe => cafe = Object.assign(cafe,Object.values(places.filter(place => place.id === cafe.location_id))[0]))
+    selectedCafe.forEach(cafe => delete cafe.location_id);
+    selectedCafe.forEach(cafe => delete cafe.id);
+    return selectedCafe;
+  }
+
+          
+  
+      </script>
+    </div>
+  </body>
+</html>
